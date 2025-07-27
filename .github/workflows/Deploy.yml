@@ -10,8 +10,8 @@ jobs:
     env:
       AWS_REGION: eu-north-1
       ECR_REPOSITORY: my-app-repo
-      ECS_CLUSTER: my-app-cluster
-      ECS_SERVICE: my-app-service
+      ECS_CLUSTER: trustworthy-crocodile-5i3nq8 
+      ECS_SERVICE: my_app_task1-service-ct9nmno5
       ECS_TASK_DEFINITION: .aws/my_app_task1-revision1.json
       CONTAINER_NAME: app1
       IMAGE_TAG: ${{ github.sha }}
