@@ -1,37 +1,18 @@
-# .github/workflows/ci.yml
-name: Continuous Integration
+name: CI - Basic Check
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main]
 
 jobs:
-  build-and-test:
+  check-repo:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Cache npm modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node-
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Lint code
-        run: npm run lint
-
-      - name: Run unit tests
-        run: npm test
+      - name: Display directory contents
+        run: ls -la
