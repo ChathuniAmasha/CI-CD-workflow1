@@ -55,20 +55,4 @@ jobs:
         task-definition: ${{ steps.render-task-def.outputs.task-definition }}
         wait-for-service-stability: true
 
-    - name: Wait for app to start
-      run: sleep 30  # adjust as needed based on startup time
- 
-    - name: Wait and verify app is running
-      run: |
-          for i in {1..10}; do
-            echo "Attempt $i..."
-            if curl --fail http://13.53.43.34:5000/health; then
-              echo "✅ App is live!"
-              exit 0
-            fi
-            echo "❌ Not up yet. Waiting 10s..."
-            sleep 10
-          done
-          echo "❌ App did not respond in time."
-          exit 1
-
+    
