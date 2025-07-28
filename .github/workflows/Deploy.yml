@@ -62,7 +62,7 @@ jobs:
       run: |
           for i in {1..10}; do
             echo "Attempt $i..."
-            if curl --fail http://13.53.43.34:5000/health; then
+            if curl --fail http://13.53.88.62:5000/health; then
               echo "✅ App is live!"
               exit 0
             fi
