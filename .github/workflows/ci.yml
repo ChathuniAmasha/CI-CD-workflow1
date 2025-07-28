@@ -1,53 +1,34 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   pull_request:
-    branches: [main]  # Run checks before merging to main
+    branches: [main]
   push:
-    branches: [main]  # Deploy after merging to main or direct push
+    branches: [main]
 
 jobs:
-  pre-merge-checks:
-    name: Pull Request Validation
-    if: github.event_name == 'pull_request'
+  validate:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout PR Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for full history to simulate merge
+
+      - name: Check for Merge Conflicts
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin main
+          git merge --no-commit --no-ff origin/main || {
+            echo "::error :: Merge conflict detected with 'main'."
+            exit 1
+          }
 
       - name: Display Directory Contents
         run: ls -la
 
       - name: Run Build / Tests
         run: |
-          echo "✅ Add your build/test commands here"
-          # Example: python3 -m unittest tests/
-
-  deploy:
-    name: Deploy to ECS
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build, Tag, and Push Docker image to ECR
-        run: |
-          IMAGE_TAG=${{ github.sha }}
-          aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin <your-account-id>.dkr.ecr.eu-north-1.amazonaws.com
-          docker build -t my-app .
-          docker tag my-app:latest <your-account-id>.dkr.ecr.eu-north-1.amazonaws.com/my-repo:$IMAGE_TAG
-          docker push <your-account-id>.dkr.ecr.eu-north-1.amazonaws.com/my-repo:$IMAGE_TAG
-
-      - name: Deploy to ECS
-        run: |
-          aws ecs update-service \
-            --cluster my-cluster \
-            --service my-service \
-            --force-new-deployment \
-            --region eu-north-1
+          echo "✅ Simulate build or test here"
+          # python3 -m unittest
