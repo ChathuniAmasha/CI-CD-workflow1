@@ -1,18 +1,53 @@
-name: CI - Basic Check
+name: CI/CD Pipeline
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main]  # Run checks before merging to main
+  push:
+    branches: [main]  # Deploy after merging to main or direct push
 
 jobs:
-  check-repo:
+  pre-merge-checks:
+    name: Pull Request Validation
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Display directory contents
+      - name: Display Directory Contents
         run: ls -la
+
+      - name: Run Build / Tests
+        run: |
+          echo "✅ Add your build/test commands here"
+          # Example: python3 -m unittest tests/
+
+  deploy:
+    name: Deploy to ECS
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, Tag, and Push Docker image to ECR
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin <your-account-id>.dkr.ecr.eu-north-1.amazonaws.com
+          docker build -t my-app .
+          docker tag my-app:latest <your-account-id>.dkr.ecr.eu-north-1.amazonaws.com/my-repo:$IMAGE_TAG
+          docker push <your-account-id>.dkr.ecr.eu-north-1.amazonaws.com/my-repo:$IMAGE_TAG
+
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster my-cluster \
+            --service my-service \
+            --force-new-deployment \
+            --region eu-north-1
